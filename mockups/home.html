@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390, initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', sans-serif; background: #FAF5ED; width: 390px; min-height: 844px; overflow-x: hidden; }
+.screen { padding-bottom: 40px; }
+.header { padding: 60px 24px 24px; }
+.logo-row { display: flex; align-items: center; gap: 16px; }
+.logo-icon { width: 48px; height: 48px; border-radius: 24px; background: #FFF9ED; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 12px rgba(245,166,35,0.15); font-size: 24px; }
+.app-title { font-family: 'Playfair Display', serif; font-size: 28px; color: #3D2F20; font-weight: 700; }
+.tagline { font-family: 'Inter', sans-serif; font-size: 12px; color: #A8956F; font-style: italic; margin-top: 2px; }
+.actions-row { display: flex; padding: 0 24px; gap: 16px; margin-bottom: 32px; }
+.action-card { flex: 1; background: #FFFDF8; border-radius: 28px; padding: 16px; border: 1px solid #FFF3DC; box-shadow: 0 2px 8px rgba(61,47,32,0.06); }
+.action-icon { width: 48px; height: 48px; border-radius: 24px; background: #FFF9ED; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; font-size: 28px; }
+.action-icon.sage { background: #F5F7F2; }
+.action-title { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 15px; color: #3D2F20; margin-bottom: 2px; }
+.action-caption { font-size: 12px; color: #A8956F; }
+.section-header { display: flex; align-items: center; padding: 0 24px; margin-bottom: 16px; gap: 8px; }
+.section-label { font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: #A8956F; white-space: nowrap; }
+.section-line { flex: 1; height: 1px; background: #FFEBC4; }
+.tribute-card { margin: 0 24px 16px; background: #FFFDF8; border-radius: 28px; overflow: hidden; border: 1px solid #FFF3DC; box-shadow: 0 2px 8px rgba(61,47,32,0.06); }
+.tribute-header { background: linear-gradient(135deg, #5A4733 0%, #3D2F20 100%); padding: 24px; position: relative; }
+.tribute-candle { position: absolute; top: 16px; right: 16px; font-size: 20px; opacity: 0.6; }
+.tribute-name { font-family: 'Playfair Display', serif; font-size: 20px; color: #FFF9ED; font-weight: 700; }
+.tribute-dates { font-size: 13px; color: rgba(255,253,248,0.7); margin-top: 4px; }
+.tribute-body { padding: 16px 24px; }
+.tribute-bio { font-size: 14px; color: #6E5740; line-height: 1.6; font-style: italic; margin-bottom: 12px; }
+.tribute-stats { display: flex; gap: 16px; padding-top: 12px; border-top: 1px solid #FFF3DC; }
+.stat { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #A8956F; }
+.stat-num { font-weight: 600; color: #5A4733; }
+.footer { text-align: center; padding: 32px; }
+.footer-text { font-size: 12px; color: #A8956F; font-style: italic; }
+.footer-flame { font-size: 16px; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+<div class="screen">
+  <div class="header">
+    <div class="logo-row">
+      <div class="logo-icon">🕯️</div>
+      <div>
+        <div class="app-title">GatheredLight</div>
+        <div class="tagline">Where memories find their way home</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions-row">
+    <div class="action-card">
+      <div class="action-icon">✦</div>
+      <div class="action-title">Create Tribute</div>
+      <div class="action-caption">Honor someone you love</div>
+    </div>
+    <div class="action-card">
+      <div class="action-icon sage">♡</div>
+      <div class="action-title">Join Tribute</div>
+      <div class="action-caption">Share your memories</div>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <span class="section-label">Your Tributes</span>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="tribute-card">
+    <div class="tribute-header">
+      <span class="tribute-candle">🕯️</span>
+      <div class="tribute-name">Margaret Eleanor Wilson</div>
+      <div class="tribute-dates">March 15, 1942 — November 28, 2024</div>
+    </div>
+    <div class="tribute-body">
+      <div class="tribute-bio">"A grandmother whose kitchen always smelled like cinnamon and whose laughter could fill any room."</div>
+      <div class="tribute-stats">
+        <div class="stat">📖 <span class="stat-num">24</span> memories</div>
+        <div class="stat">👥 <span class="stat-num">8</span> contributors</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tribute-card">
+    <div class="tribute-header" style="background: linear-gradient(135deg, #6E5740 0%, #5A4733 100%);">
+      <span class="tribute-candle">🕯️</span>
+      <div class="tribute-name">James Robert Chen</div>
+      <div class="tribute-dates">July 22, 1978 — September 10, 2024</div>
+    </div>
+    <div class="tribute-body">
+      <div class="tribute-bio">"Friend, mentor, and the best fishing buddy anyone could ask for."</div>
+      <div class="tribute-stats">
+        <div class="stat">📖 <span class="stat-num">47</span> memories</div>
+        <div class="stat">👥 <span class="stat-num">15</span> contributors</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-flame">🕯️</div>
+    <div class="footer-text">Every memory shared is a light that never goes out</div>
+  </div>
+</div>
+</body>
+</html>

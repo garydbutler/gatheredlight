@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390, initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', sans-serif; background: #FAF5ED; width: 390px; min-height: 844px; }
+.hero { height: 300px; position: relative; background: linear-gradient(180deg, #5A4733 0%, #3D2F20 100%); display: flex; align-items: center; justify-content: center; }
+.candle-glow { position: absolute; width: 120px; height: 120px; border-radius: 60px; background: rgba(245,166,35,0.15); }
+.hero-flame { font-size: 40px; position: relative; z-index: 1; }
+.hero-overlay { position: absolute; inset: 0; background: rgba(42,31,21,0.4); }
+.back-btn, .settings-btn { position: absolute; top: 50px; width: 40px; height: 40px; border-radius: 20px; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; }
+.back-btn { left: 16px; }
+.settings-btn { right: 16px; }
+.hero-content { position: absolute; bottom: 0; left: 0; right: 0; padding: 24px; z-index: 2; }
+.hero-name { font-family: 'Playfair Display', serif; font-size: 28px; color: #FFFDF8; font-weight: 700; text-shadow: 0 2px 8px rgba(0,0,0,0.5); }
+.hero-dates { font-size: 14px; color: rgba(255,255,255,0.8); margin-top: 4px; }
+.bio-section { padding: 24px 32px; background: #FFFDF8; border-bottom: 1px solid #FFF3DC; text-align: center; }
+.bio-text { font-family: 'Playfair Display', serif; font-style: italic; font-size: 15px; color: #6E5740; line-height: 1.7; }
+.action-bar { display: flex; padding: 16px; gap: 8px; justify-content: center; border-bottom: 1px solid #FFF3DC; }
+.action-btn { padding: 10px 16px; border-radius: 28px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; border: none; cursor: pointer; }
+.btn-primary { background: #F5A623; color: white; }
+.btn-secondary { background: #FFF9ED; color: #5A4733; border: 1px solid #FFF3DC; }
+.btn-warm { background: #FFF3DC; color: #3D2F20; }
+.tab-bar { display: flex; padding: 8px 24px; gap: 24px; justify-content: center; border-bottom: 1px solid #FFF3DC; }
+.tab { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 999px; font-size: 12px; color: #C4B5A0; }
+.tab.active { background: #FFF9ED; color: #E8961E; font-weight: 600; }
+.memories { padding: 24px 16px; }
+.story-card { background: #FFFDF8; border-radius: 28px; padding: 24px 24px; margin-bottom: 20px; border: 1px solid #FFF3DC; border-left: 3px solid #FFCC80; box-shadow: 0 2px 8px rgba(61,47,32,0.06); }
+.story-title { font-family: 'Playfair Display', serif; font-size: 17px; color: #3D2F20; font-weight: 700; margin-bottom: 8px; }
+.story-content { font-size: 14px; color: #6E5740; line-height: 1.8; margin-bottom: 16px; }
+.story-footer { border-top: 1px solid #FFF3DC; padding-top: 8px; font-size: 12px; color: #A8956F; font-style: italic; }
+.photo-card { background: #FFFDF8; border-radius: 28px; overflow: hidden; margin-bottom: 20px; border: 1px solid #FFF3DC; box-shadow: 0 2px 8px rgba(61,47,32,0.06); }
+.photo-img { width: 100%; height: 200px; background: linear-gradient(135deg, #E0D0BC 0%, #C4A882 50%, #A8876A 100%); display: flex; align-items: center; justify-content: center; font-size: 48px; }
+.photo-caption { padding: 16px 20px; }
+.photo-title { font-family: 'Playfair Display', serif; font-size: 15px; color: #3D2F20; }
+.photo-author { font-size: 12px; color: #A8956F; margin-top: 4px; }
+</style>
+</head>
+<body>
+<div class="hero">
+  <div class="candle-glow"></div>
+  <div class="hero-flame">🕯️</div>
+  <div class="hero-overlay"></div>
+  <div class="back-btn">←</div>
+  <div class="settings-btn">⋯</div>
+  <div class="hero-content">
+    <div class="hero-name">Margaret Eleanor Wilson</div>
+    <div class="hero-dates">March 15, 1942 — November 28, 2024</div>
+  </div>
+</div>
+
+<div class="bio-section">
+  <div class="bio-text">"A grandmother whose kitchen always smelled like cinnamon and whose laughter could fill any room. She taught us that love is measured not in grand gestures but in quiet, steady presence."</div>
+</div>
+
+<div class="action-bar">
+  <button class="action-btn btn-primary">✦ Add Memory</button>
+  <button class="action-btn btn-secondary">👤 Invite</button>
+  <button class="action-btn btn-warm">▶ Slideshow</button>
+</div>
+
+<div class="tab-bar">
+  <div class="tab">▦ Wall</div>
+  <div class="tab">◷ Timeline</div>
+  <div class="tab active">📖 Stories</div>
+</div>
+
+<div class="memories">
+  <div class="story-card">
+    <div class="story-title">Her Famous Apple Pie</div>
+    <div class="story-content">Every Thanksgiving, Grandma would wake up at 4am to start her apple pie. She never wrote down the recipe — said the secret was in the love you put into it. The kitchen would smell like cinnamon and brown sugar all day. I can still close my eyes and smell it.</div>
+    <div class="story-footer">— Sarah Wilson, Granddaughter</div>
+  </div>
+
+  <div class="story-card">
+    <div class="story-title">Dancing in the Rain</div>
+    <div class="story-content">Mom always said life was too short to wait for the storm to pass. One summer afternoon, she grabbed my hand and we danced in the rain right in the front yard. The neighbors thought we were crazy. We were just happy.</div>
+    <div class="story-footer">— David Wilson, Son</div>
+  </div>
+</div>
+</body>
+</html>

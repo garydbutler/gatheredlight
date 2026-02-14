@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390, initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', sans-serif; background: #2A1F15; width: 390px; height: 844px; overflow: hidden; }
+.screen { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px; text-align: center; position: relative; }
+.controls { position: absolute; top: 50px; left: 16px; right: 16px; display: flex; align-items: center; justify-content: space-between; }
+.ctrl-btn { width: 44px; height: 44px; border-radius: 22px; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.8); font-size: 18px; }
+.progress { display: flex; gap: 6px; flex: 1; justify-content: center; padding: 0 16px; }
+.dot { width: 8px; height: 8px; border-radius: 4px; background: rgba(255,255,255,0.3); }
+.dot.active { background: #FFB74D; width: 20px; }
+.dot.done { background: rgba(255,255,255,0.5); }
+.candle-circle { width: 72px; height: 72px; border-radius: 36px; background: rgba(245,166,35,0.15); display: flex; align-items: center; justify-content: center; margin-bottom: 32px; font-size: 36px; }
+.slide-title { font-family: 'Playfair Display', serif; font-size: 34px; color: #FFF9ED; font-weight: 700; margin-bottom: 16px; line-height: 1.2; }
+.slide-subtitle { font-size: 15px; color: #FFEBC4; font-style: italic; }
+
+/* Story slide variant */
+.story-icon { font-size: 28px; color: #FFCC80; margin-bottom: 16px; }
+.story-title { font-family: 'Playfair Display', serif; font-size: 22px; color: #FFF3DC; margin-bottom: 24px; }
+.story-quote { font-family: 'Playfair Display', serif; font-style: italic; font-size: 18px; color: #FFEBC4; line-height: 1.7; }
+.story-author { font-size: 13px; color: #FFCC80; margin-top: 24px; }
+</style>
+</head>
+<body>
+<!-- Title Slide -->
+<div class="screen">
+  <div class="controls">
+    <div class="ctrl-btn">✕</div>
+    <div class="progress">
+      <div class="dot active"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+    <div class="ctrl-btn">⏸</div>
+  </div>
+
+  <div class="candle-circle">🕯️</div>
+  <div class="slide-title">Margaret Eleanor Wilson</div>
+  <div class="slide-subtitle">March 15, 1942 — November 28, 2024</div>
+</div>
+</body>
+</html>

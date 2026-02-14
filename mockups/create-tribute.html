@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390, initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', sans-serif; background: #FAF5ED; width: 390px; min-height: 844px; }
+.content { padding: 68px 24px 64px; }
+.back-btn { width: 40px; height: 40px; border-radius: 20px; background: #FFF9ED; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; font-size: 18px; color: #5A4733; }
+.page-title { font-family: 'Playfair Display', serif; font-size: 24px; color: #3D2F20; font-weight: 700; margin-bottom: 4px; }
+.page-sub { font-size: 14px; color: #A8956F; font-style: italic; margin-bottom: 32px; }
+.cover-picker { height: 200px; border-radius: 28px; border: 2px dashed #FFEBC4; background: #FFFDF8; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 32px; gap: 4px; }
+.cover-icon { font-size: 36px; color: #FFB74D; }
+.cover-text { font-size: 14px; color: #6E5740; }
+.cover-hint { font-size: 12px; color: #A8956F; }
+.form-group { margin-bottom: 20px; }
+.label { font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: #A8956F; margin-bottom: 8px; }
+.input { width: 100%; padding: 14px 16px; border-radius: 16px; border: 1.5px solid #FFF3DC; background: #FFFDF8; font-size: 15px; color: #3D2F20; font-family: 'Inter', sans-serif; outline: none; }
+.input::placeholder { color: #C4B5A0; }
+.input.textarea { min-height: 100px; line-height: 1.6; resize: none; }
+.date-row { display: flex; gap: 16px; }
+.date-row .form-group { flex: 1; }
+.privacy-label { font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: #A8956F; margin-bottom: 8px; }
+.privacy-row { display: flex; gap: 8px; margin-bottom: 32px; }
+.privacy-option { flex: 1; text-align: center; padding: 16px 8px; border-radius: 20px; background: #FFFDF8; border: 1.5px solid #FFF3DC; cursor: pointer; }
+.privacy-option.selected { border-color: #FFB74D; background: #FFFDF8; }
+.privacy-icon { font-size: 20px; margin-bottom: 4px; }
+.privacy-name { font-size: 12px; font-weight: 600; color: #3D2F20; }
+.privacy-desc { font-size: 10px; color: #A8956F; }
+.submit-btn { width: 100%; padding: 16px; border-radius: 28px; background: linear-gradient(135deg, #F5A623, #E8961E); color: white; font-size: 16px; font-weight: 600; border: none; cursor: pointer; font-family: 'Inter', sans-serif; box-shadow: 0 4px 16px rgba(245,166,35,0.3); margin-top: 16px; }
+.gentle-note { text-align: center; margin-top: 24px; font-size: 12px; color: #A8956F; font-style: italic; line-height: 1.7; }
+</style>
+</head>
+<body>
+<div class="content">
+  <div class="back-btn">←</div>
+  <div class="page-title">Create a Tribute</div>
+  <div class="page-sub">Begin gathering light for someone you love</div>
+
+  <div class="cover-picker">
+    <div class="cover-icon">📷</div>
+    <div class="cover-text">Add a cover photo</div>
+    <div class="cover-hint">A favorite photo of your loved one</div>
+  </div>
+
+  <div class="form-group">
+    <div class="label">Their Name</div>
+    <input class="input" placeholder="Full name of your loved one" />
+  </div>
+
+  <div class="date-row">
+    <div class="form-group">
+      <div class="label">Date of Birth</div>
+      <input class="input" placeholder="MM/DD/YYYY" />
+    </div>
+    <div class="form-group">
+      <div class="label">Date of Passing</div>
+      <input class="input" placeholder="MM/DD/YYYY" />
+    </div>
+  </div>
+
+  <div class="form-group">
+    <div class="label">About Them</div>
+    <textarea class="input textarea" placeholder="Share a few words about who they were — their spirit, their warmth, what made them special..."></textarea>
+  </div>
+
+  <div class="privacy-label">Privacy</div>
+  <div class="privacy-row">
+    <div class="privacy-option selected">
+      <div class="privacy-icon">🔒</div>
+      <div class="privacy-name">Private</div>
+      <div class="privacy-desc">Invite-only</div>
+    </div>
+    <div class="privacy-option">
+      <div class="privacy-icon">👨‍👩‍👧‍👦</div>
+      <div class="privacy-name">Family</div>
+      <div class="privacy-desc">Family only</div>
+    </div>
+    <div class="privacy-option">
+      <div class="privacy-icon">🌐</div>
+      <div class="privacy-name">Public</div>
+      <div class="privacy-desc">Anyone can view</div>
+    </div>
+  </div>
+
+  <button class="submit-btn">Create Tribute</button>
+
+  <div class="gentle-note">You can always edit these details later.<br/>Take your time.</div>
+</div>
+</body>
+</html>

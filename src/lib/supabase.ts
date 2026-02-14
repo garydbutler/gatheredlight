@@ -1,15 +1,18 @@
-import 'react-native-url-polyfill/auto';
 import { createClient } from '@supabase/supabase-js';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || 'https://your-project.supabase.co';
-const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || 'your-anon-key';
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder';
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    storage: AsyncStorage,
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: false,
-  },
-});
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+export async function uploadMedia(file: File, tributeId: string): Promise<string | null> {
+  const ext = file.name.split('.').pop();
+  const path = `${tributeId}/${Date.now()}.${ext}`;
+  const { error } = await supabase.storage.from('tribute-media').upload(path, file);
+  if (error) {
+    console.error('Upload error:', error);
+    return null;
+  }
+  const { data } = supabase.storage.from('tribute-media').getPublicUrl(path);
+  return data.publicUrl;
+}
