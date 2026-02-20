@@ -9,6 +9,7 @@ export default function Home() {
           Gathered<span className="text-amber-500">Light</span>
         </Link>
         <div className="flex items-center gap-4">
+          <Link href="/pricing" className="btn-ghost text-sm">Pricing</Link>
           <Link href="/join" className="btn-ghost text-sm">Join a Tribute</Link>
           <Link href="/auth" className="btn-primary text-sm">Get Started</Link>
         </div>

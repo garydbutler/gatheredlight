@@ -1,152 +1,152 @@
-'use client';
-
-import { useState } from 'react';
-import { useParams } from 'next/navigation';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { redirect, notFound } from 'next/navigation';
 import Link from 'next/link';
-import Navbar from '@/components/Navbar';
-import MemoryWall from '@/components/MemoryWall';
-import Timeline from '@/components/Timeline';
-import StoriesView from '@/components/StoriesView';
-import { useTribute, useMemories, useAuth } from '@/lib/hooks';
-import { format } from 'date-fns';
+import type { Tribute, Memory, Contributor } from '@/lib/types';
+import { MemoryWall } from '@/components/MemoryWall';
+import { AddMemoryButton } from '@/components/AddMemoryButton';
+import { InviteSection } from '@/components/InviteSection';
+import { CoverPhotoUpload } from '@/components/CoverPhotoUpload';
 
-type ViewMode = 'wall' | 'timeline' | 'stories';
+export default async function TributeDetailPage({ params }: { params: { id: string } }) {
+  const supabase = createServerSupabaseClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
-export default function TributeDetailPage() {
-  const { id } = useParams<{ id: string }>();
-  const { tribute, loading: tLoading } = useTribute(id);
-  const { memories, loading: mLoading } = useMemories(id);
-  const { user } = useAuth();
-  const [view, setView] = useState<ViewMode>('wall');
+  if (!user) redirect('/auth');
 
-  const isCreator = user?.id === tribute?.creator_id;
+  const { data: tribute } = await supabase
+    .from('tributes')
+    .select('*')
+    .eq('id', params.id)
+    .single();
 
-  if (tLoading) {
-    return (
-      <div className="min-h-screen">
-        <Navbar />
-        <div className="flex items-center justify-center py-32">
-          <div className="w-8 h-8 border-2 border-amber-300 border-t-amber-500 rounded-full animate-spin" />
-        </div>
-      </div>
-    );
-  }
+  if (!tribute) notFound();
 
-  if (!tribute) {
-    return (
-      <div className="min-h-screen">
-        <Navbar />
-        <div className="text-center py-32">
-          <h1 className="text-2xl font-serif text-earth-700">Tribute not found</h1>
-        </div>
-      </div>
-    );
-  }
+  const { data: memories } = await supabase
+    .from('memories')
+    .select('*, contributor:contributors(name, relationship)')
+    .eq('tribute_id', params.id)
+    .order('created_at', { ascending: false });
 
-  const dates = [
-    tribute.born_date ? format(new Date(tribute.born_date), 'MMMM d, yyyy') : null,
-    tribute.passed_date ? format(new Date(tribute.passed_date), 'MMMM d, yyyy') : null,
-  ].filter(Boolean).join(' — ');
+  const { data: contributors } = await supabase
+    .from('contributors')
+    .select('*')
+    .eq('tribute_id', params.id)
+    .order('created_at', { ascending: true });
 
-  const views: { key: ViewMode; label: string }[] = [
-    { key: 'wall', label: 'Memory Wall' },
-    { key: 'timeline', label: 'Timeline' },
-    { key: 'stories', label: 'Stories' },
-  ];
+  const isOwner = tribute.creator_id === user.id;
+  const typedTribute = tribute as Tribute;
+  const typedMemories = (memories || []) as (Memory & { contributor: { name: string; relationship: string | null } | null })[];
+  const typedContributors = (contributors || []) as Contributor[];
+
+  const born = typedTribute.born_date
+    ? new Date(typedTribute.born_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    : null;
+  const passed = typedTribute.passed_date
+    ? new Date(typedTribute.passed_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    : null;
+
+  const memoryCount = typedMemories.length;
+  const storyCount = typedMemories.filter(m => m.type === 'story').length;
+  const photoCount = typedMemories.filter(m => m.type === 'photo').length;
 
   return (
     <div className="min-h-screen">
-      <Navbar />
-
-      {/* Hero Banner */}
-      <div className="relative h-64 md:h-80 bg-gradient-to-br from-amber-100 to-cream-200 overflow-hidden">
-        {tribute.cover_photo_url && (
+      {/* Cover Photo */}
+      <div className="relative h-64 md:h-80 bg-gradient-to-br from-amber-100 via-cream-200 to-earth-100 overflow-hidden">
+        {typedTribute.cover_photo_url ? (
           <img
-            src={tribute.cover_photo_url}
-            alt={tribute.name}
+            src={typedTribute.cover_photo_url}
+            alt={typedTribute.name}
             className="w-full h-full object-cover kenburns-1"
           />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-earth-900/60 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 max-w-6xl mx-auto">
-          <h1 className="text-4xl md:text-5xl font-serif text-white mb-2">{tribute.name}</h1>
-          {dates && <p className="text-cream-200 text-lg">{dates}</p>}
-        </div>
-      </div>
-
-      {/* Action Bar */}
-      <div className="border-b border-cream-200 bg-warm-white sticky top-[57px] z-40">
-        <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
-          <div className="flex gap-1">
-            {views.map((v) => (
-              <button
-                key={v.key}
-                onClick={() => setView(v.key)}
-                className={`px-5 py-3 text-sm font-medium border-b-2 transition-colors ${
-                  view === v.key
-                    ? 'border-amber-500 text-amber-600'
-                    : 'border-transparent text-earth-400 hover:text-earth-600'
-                }`}
-              >
-                {v.label}
-              </button>
-            ))}
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-center">
+              <svg className="w-16 h-16 text-amber-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
+              </svg>
+              {isOwner && <CoverPhotoUpload tributeId={params.id} />}
+            </div>
           </div>
-          <div className="flex items-center gap-2 py-2">
-            <Link href={`/tributes/${id}/memories/add`} className="btn-primary text-sm py-2 px-4">
-              Add Memory
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">
+          <div className="max-w-6xl mx-auto">
+            <Link href="/dashboard" className="inline-flex items-center gap-1 text-white/80 text-sm hover:text-white mb-3 transition-colors">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+              </svg>
+              Dashboard
             </Link>
-            <Link href={`/tributes/${id}/slideshow`} className="btn-secondary text-sm py-2 px-4">
-              Slideshow
-            </Link>
-            {isCreator && (
-              <>
-                <Link href={`/tributes/${id}/invite`} className="btn-ghost text-sm py-2 px-4">
-                  Invite
-                </Link>
-                <Link href={`/tributes/${id}/settings`} className="btn-ghost text-sm py-2 px-4">
-                  Settings
-                </Link>
-              </>
+            <h1 className="text-3xl md:text-5xl font-serif text-white mb-2">{typedTribute.name}</h1>
+            {(born || passed) && (
+              <p className="text-white/80 text-lg">
+                {born && passed ? `${born} -- ${passed}` : born || passed}
+              </p>
             )}
           </div>
         </div>
       </div>
 
-      {/* Bio */}
-      {tribute.bio && (
-        <div className="max-w-3xl mx-auto px-6 py-8 text-center">
-          <p className="text-earth-500 text-lg italic leading-relaxed">{tribute.bio}</p>
-        </div>
-      )}
+      <main className="max-w-6xl mx-auto px-6 py-10">
+        {/* Bio + Stats */}
+        <div className="grid lg:grid-cols-3 gap-8 mb-10">
+          <div className="lg:col-span-2">
+            {typedTribute.bio && (
+              <div className="card p-6 mb-6">
+                <p className="text-earth-600 leading-relaxed italic font-serif text-lg">
+                  &ldquo;{typedTribute.bio}&rdquo;
+                </p>
+              </div>
+            )}
 
-      {/* Content */}
-      <div className="max-w-6xl mx-auto px-6 pb-16">
-        {mLoading ? (
-          <div className="flex items-center justify-center py-16">
-            <div className="w-8 h-8 border-2 border-amber-300 border-t-amber-500 rounded-full animate-spin" />
-          </div>
-        ) : memories.length === 0 ? (
-          <div className="text-center py-20">
-            <div className="w-20 h-20 bg-cream-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
-              <svg className="w-10 h-10 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-              </svg>
+            {/* Memory stats */}
+            <div className="flex flex-wrap gap-4">
+              <div className="flex items-center gap-2 text-sm text-earth-500">
+                <span className="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center text-amber-600 font-semibold">{memoryCount}</span>
+                memories
+              </div>
+              <div className="flex items-center gap-2 text-sm text-earth-500">
+                <span className="w-8 h-8 bg-sage-100 rounded-lg flex items-center justify-center text-sage-600 font-semibold">{storyCount}</span>
+                stories
+              </div>
+              <div className="flex items-center gap-2 text-sm text-earth-500">
+                <span className="w-8 h-8 bg-cream-200 rounded-lg flex items-center justify-center text-earth-600 font-semibold">{photoCount}</span>
+                photos
+              </div>
+              <div className="flex items-center gap-2 text-sm text-earth-500">
+                <span className="w-8 h-8 bg-earth-100 rounded-lg flex items-center justify-center text-earth-600 font-semibold">{typedContributors.filter(c => c.status === 'active').length}</span>
+                contributors
+              </div>
             </div>
-            <h2 className="text-xl font-serif text-earth-700 mb-2">No memories yet</h2>
-            <p className="text-earth-400 mb-6">Be the first to share a memory of {tribute.name}.</p>
-            <Link href={`/tributes/${id}/memories/add`} className="btn-primary">
-              Share a Memory
-            </Link>
           </div>
-        ) : (
-          <>
-            {view === 'wall' && <MemoryWall memories={memories} tributeId={id} />}
-            {view === 'timeline' && <Timeline memories={memories} tributeId={id} />}
-            {view === 'stories' && <StoriesView memories={memories} tributeId={id} />}
-          </>
-        )}
-      </div>
+
+          {/* Sidebar */}
+          <div className="space-y-4">
+            <AddMemoryButton tributeId={params.id} />
+            {isOwner && <InviteSection inviteCode={typedTribute.invite_code} />}
+          </div>
+        </div>
+
+        {/* Memory Wall */}
+        <section>
+          <h2 className="text-2xl font-serif text-earth-800 mb-6">Memory Wall</h2>
+          {typedMemories.length === 0 ? (
+            <div className="card p-16 text-center">
+              <div className="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-5">
+                <svg className="w-10 h-10 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-serif text-earth-700 mb-2">No memories shared yet</h3>
+              <p className="text-earth-500 mb-6">Be the first to share a memory of {typedTribute.name}.</p>
+              <AddMemoryButton tributeId={params.id} variant="primary" />
+            </div>
+          ) : (
+            <MemoryWall memories={typedMemories} />
+          )}
+        </section>
+      </main>
     </div>
   );
 }

@@ -1,110 +1,109 @@
-'use client';
-
-import { useAuth, useTributes } from '@/lib/hooks';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import Navbar from '@/components/Navbar';
-import { format } from 'date-fns';
 import type { Tribute } from '@/lib/types';
+import { SignOutButton } from '@/components/SignOutButton';
+import { TributeCard } from '@/components/TributeCard';
 
-function TributeCard({ tribute }: { tribute: Tribute }) {
-  const dates = [
-    tribute.born_date ? format(new Date(tribute.born_date), 'yyyy') : null,
-    tribute.passed_date ? format(new Date(tribute.passed_date), 'yyyy') : null,
-  ].filter(Boolean).join(' - ');
+export default async function DashboardPage() {
+  const supabase = createServerSupabaseClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  return (
-    <Link href={`/tributes/${tribute.id}`} className="card group">
-      <div className="aspect-[16/10] bg-cream-100 relative overflow-hidden">
-        {tribute.cover_photo_url ? (
-          <img
-            src={tribute.cover_photo_url}
-            alt={tribute.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-50 to-cream-200">
-            <span className="text-5xl font-serif text-amber-300">{tribute.name.charAt(0)}</span>
-          </div>
-        )}
-        <div className="absolute top-3 right-3">
-          <span className={`badge text-xs ${
-            tribute.privacy === 'public' ? 'badge-sage' :
-            tribute.privacy === 'family' ? 'badge-amber' : 'badge-earth'
-          }`}>
-            {tribute.privacy}
-          </span>
-        </div>
-      </div>
-      <div className="p-5">
-        <h3 className="text-xl font-serif text-earth-800 mb-1 group-hover:text-amber-600 transition-colors">
-          {tribute.name}
-        </h3>
-        {dates && <p className="text-sm text-earth-400 mb-2">{dates}</p>}
-        {tribute.bio && (
-          <p className="text-sm text-earth-500 line-clamp-2">{tribute.bio}</p>
-        )}
-      </div>
-    </Link>
-  );
-}
+  if (!user) redirect('/auth');
 
-export default function DashboardPage() {
-  const { user, loading: authLoading } = useAuth();
-  const { tributes, loading } = useTributes(user?.id);
-  const router = useRouter();
+  const { data: tributes } = await supabase
+    .from('tributes')
+    .select('*')
+    .order('created_at', { ascending: false });
 
-  useEffect(() => {
-    if (!authLoading && !user) router.push('/auth');
-  }, [user, authLoading, router]);
+  const { data: contributing } = await supabase
+    .from('contributors')
+    .select('*, tribute:tributes(*)')
+    .eq('user_id', user.id)
+    .eq('status', 'active');
 
-  if (authLoading || loading) {
-    return (
-      <div className="min-h-screen">
-        <Navbar />
-        <div className="flex items-center justify-center py-32">
-          <div className="w-8 h-8 border-2 border-amber-300 border-t-amber-500 rounded-full animate-spin" />
-        </div>
-      </div>
-    );
-  }
+  const myTributes = (tributes || []) as Tribute[];
+  const contributingTo = (contributing || []).map((c: any) => c.tribute).filter(Boolean) as Tribute[];
+
+  const userName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Friend';
 
   return (
     <div className="min-h-screen">
-      <Navbar />
-      <div className="max-w-6xl mx-auto px-6 py-10">
-        <div className="flex items-center justify-between mb-10">
-          <div>
-            <h1 className="text-3xl font-serif text-earth-800">My Tributes</h1>
-            <p className="text-earth-400 mt-1">Spaces you&apos;ve created to gather memories</p>
+      {/* Header */}
+      <header className="border-b border-cream-200 bg-white/80 backdrop-blur-sm sticky top-0 z-10">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+          <Link href="/" className="font-serif text-xl text-earth-800 tracking-tight">
+            Gathered<span className="text-amber-500">Light</span>
+          </Link>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-earth-500">{userName}</span>
+            <SignOutButton />
           </div>
-          <Link href="/tributes/create" className="btn-primary">
-            Create Tribute
+        </div>
+      </header>
+
+      <main className="max-w-6xl mx-auto px-6 py-10">
+        {/* Welcome */}
+        <div className="mb-10">
+          <h1 className="text-3xl font-serif text-earth-800 mb-2">
+            Welcome, {userName}
+          </h1>
+          <p className="text-earth-500">Your tributes and shared memories, all in one place.</p>
+        </div>
+
+        {/* Actions */}
+        <div className="flex flex-wrap gap-3 mb-10">
+          <Link href="/tributes/new" className="btn-primary inline-flex items-center gap-2">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            Create a Tribute
+          </Link>
+          <Link href="/join" className="btn-secondary inline-flex items-center gap-2">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM3 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 019.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
+            </svg>
+            Join with Code
           </Link>
         </div>
 
-        {tributes.length === 0 ? (
-          <div className="text-center py-24">
-            <div className="w-20 h-20 bg-cream-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
-              <svg className="w-10 h-10 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-              </svg>
+        {/* My Tributes */}
+        <section className="mb-12">
+          <h2 className="text-xl font-serif text-earth-800 mb-5">My Tributes</h2>
+          {myTributes.length === 0 ? (
+            <div className="card p-12 text-center">
+              <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-serif text-earth-700 mb-2">No tributes yet</h3>
+              <p className="text-earth-500 mb-6">Create your first tribute to honor someone special.</p>
+              <Link href="/tributes/new" className="btn-primary">
+                Create a Tribute
+              </Link>
             </div>
-            <h2 className="text-2xl font-serif text-earth-700 mb-2">No tributes yet</h2>
-            <p className="text-earth-400 mb-8 max-w-md mx-auto">
-              Create your first tribute to start gathering memories with loved ones.
-            </p>
-            <Link href="/tributes/create" className="btn-primary">
-              Create Your First Tribute
-            </Link>
-          </div>
-        ) : (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {tributes.map((t) => <TributeCard key={t.id} tribute={t} />)}
-          </div>
+          ) : (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {myTributes.map((tribute) => (
+                <TributeCard key={tribute.id} tribute={tribute} isOwner />
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Contributing To */}
+        {contributingTo.length > 0 && (
+          <section>
+            <h2 className="text-xl font-serif text-earth-800 mb-5">Contributing To</h2>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {contributingTo.map((tribute) => (
+                <TributeCard key={tribute.id} tribute={tribute} />
+              ))}
+            </div>
+          </section>
         )}
-      </div>
+      </main>
     </div>
   );
 }

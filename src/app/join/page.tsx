@@ -1,106 +1,207 @@
 'use client';
 
-import { Suspense, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase';
-import { useAuth } from '@/lib/hooks';
+import { createClient } from '@/lib/supabase/client';
 
 function JoinForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
-  const { user } = useAuth();
+  const router = useRouter();
+  const supabase = createClient();
+
   const [code, setCode] = useState(searchParams.get('code') || '');
   const [name, setName] = useState('');
   const [relationship, setRelationship] = useState('');
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [tribute, setTribute] = useState<any>(null);
+  const [step, setStep] = useState<'code' | 'details'>('code');
 
-  async function handleJoin(e: React.FormEvent) {
+  async function lookupCode(e: React.FormEvent) {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    const { data: tribute } = await supabase
-      .from('tributes')
-      .select('id, name')
-      .eq('invite_code', code.trim())
-      .single();
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        router.push(`/auth?mode=signup&next=/join?code=${code}`);
+        return;
+      }
 
-    if (!tribute) {
-      setError('No tribute found with that invite code.');
+      const { data, error: fetchError } = await supabase
+        .from('tributes')
+        .select('id, name, born_date, passed_date, bio')
+        .eq('invite_code', code.trim().toLowerCase())
+        .single();
+
+      if (fetchError || !data) throw new Error('Invalid invite code. Please check and try again.');
+
+      setTribute(data);
+      setStep('details');
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
       setLoading(false);
-      return;
     }
+  }
 
-    if (user) {
+  async function joinTribute(e: React.FormEvent) {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Please sign in first');
+
+      // Check if already a contributor
       const { data: existing } = await supabase
         .from('contributors')
-        .select('id')
+        .select('id, status')
         .eq('tribute_id', tribute.id)
         .eq('user_id', user.id)
         .single();
 
-      if (!existing) {
-        await supabase.from('contributors').insert({
-          tribute_id: tribute.id,
-          user_id: user.id,
-          name: name || user.user_metadata?.full_name || user.email || 'Contributor',
-          relationship,
-          status: 'active',
-        });
-      }
-    }
+      if (existing) {
+        if (existing.status === 'active') {
+          router.push(`/tributes/${tribute.id}`);
+          return;
+        }
+        // Reactivate
+        await supabase
+          .from('contributors')
+          .update({ status: 'active', name })
+          .eq('id', existing.id);
+      } else {
+        const { error: insertError } = await supabase
+          .from('contributors')
+          .insert({
+            tribute_id: tribute.id,
+            user_id: user.id,
+            name: name || user.user_metadata?.full_name || 'Anonymous',
+            relationship: relationship || null,
+            status: 'active',
+          });
 
-    router.push(`/tributes/${tribute.id}`);
+        if (insertError) throw insertError;
+      }
+
+      router.push(`/tributes/${tribute.id}`);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
-    <div className="card p-8">
-      <h1 className="text-2xl font-serif text-earth-800 text-center mb-2">Join a Tribute</h1>
-      <p className="text-earth-400 text-center mb-8">Enter your invite code to contribute memories</p>
-      <form onSubmit={handleJoin} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-earth-600 mb-1.5">Invite Code</label>
-          <input type="text" value={code} onChange={(e) => setCode(e.target.value)} className="input text-center text-lg font-mono tracking-widest" placeholder="Enter code" required />
+    <div className="min-h-screen flex items-center justify-center px-4">
+      <div className="card p-10 max-w-md w-full">
+        <div className="text-center mb-8">
+          <Link href="/" className="font-serif text-2xl text-earth-800 tracking-tight">
+            Gathered<span className="text-amber-500">Light</span>
+          </Link>
+          <p className="text-earth-500 mt-2">
+            {step === 'code' ? 'Enter your invite code' : `Join the tribute for ${tribute?.name}`}
+          </p>
         </div>
-        {!user && (
-          <div>
-            <label className="block text-sm font-medium text-earth-600 mb-1.5">Your Name</label>
-            <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="input" placeholder="Your name" required />
-          </div>
+
+        {step === 'code' ? (
+          <form onSubmit={lookupCode} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-earth-700 mb-1">Invite code</label>
+              <input
+                type="text"
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                className="input text-center font-mono text-xl tracking-widest"
+                placeholder="abc12def"
+                required
+                maxLength={12}
+              />
+            </div>
+
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
+                {error}
+              </div>
+            )}
+
+            <button type="submit" className="btn-primary w-full" disabled={loading}>
+              {loading ? 'Looking up...' : 'Find Tribute'}
+            </button>
+          </form>
+        ) : (
+          <>
+            {/* Tribute preview */}
+            <div className="bg-cream-50 border border-cream-200 rounded-xl p-5 mb-6 text-center">
+              <h3 className="text-xl font-serif text-earth-800 mb-1">{tribute.name}</h3>
+              {tribute.bio && (
+                <p className="text-sm text-earth-500 italic">{tribute.bio.slice(0, 120)}</p>
+              )}
+            </div>
+
+            <form onSubmit={joinTribute} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-earth-700 mb-1">Your name</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="input"
+                  placeholder="How they knew you"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-earth-700 mb-1">Your relationship</label>
+                <input
+                  type="text"
+                  value={relationship}
+                  onChange={(e) => setRelationship(e.target.value)}
+                  className="input"
+                  placeholder="Friend, cousin, neighbor..."
+                />
+              </div>
+
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
+                  {error}
+                </div>
+              )}
+
+              <button type="submit" className="btn-primary w-full" disabled={loading}>
+                {loading ? 'Joining...' : 'Join Tribute'}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => { setStep('code'); setTribute(null); }}
+                className="btn-ghost w-full text-sm"
+              >
+                Use a different code
+              </button>
+            </form>
+          </>
         )}
-        <div>
-          <label className="block text-sm font-medium text-earth-600 mb-1.5">Your Relationship</label>
-          <input type="text" value={relationship} onChange={(e) => setRelationship(e.target.value)} className="input" placeholder="e.g., Grandson, Friend, Colleague" />
+
+        <div className="text-center mt-6">
+          <Link href="/dashboard" className="text-sm text-earth-500 hover:text-earth-700 transition-colors">
+            Go to dashboard
+          </Link>
         </div>
-        {error && <p className="text-rose-warm text-sm text-center">{error}</p>}
-        <button type="submit" disabled={loading} className="btn-primary w-full">
-          {loading ? 'Joining...' : 'Join Tribute'}
-        </button>
-      </form>
-      {!user && (
-        <p className="text-center text-sm text-earth-400 mt-6">
-          <Link href="/auth" className="text-amber-600 hover:text-amber-700">Sign in</Link> to save your contributions
-        </p>
-      )}
+      </div>
     </div>
   );
 }
 
 export default function JoinPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 py-12">
-      <div className="w-full max-w-md">
-        <Link href="/" className="block text-center mb-10">
-          <span className="font-serif text-3xl text-earth-800 tracking-tight">
-            Gathered<span className="text-amber-500">Light</span>
-          </span>
-        </Link>
-        <Suspense fallback={<div className="card p-8 text-center text-earth-400">Loading...</div>}>
-          <JoinForm />
-        </Suspense>
-      </div>
-    </div>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><p className="text-earth-500">Loading...</p></div>}>
+      <JoinForm />
+    </Suspense>
   );
 }

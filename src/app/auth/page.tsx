@@ -1,71 +1,189 @@
 'use client';
 
-import { Suspense, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/client';
 
 function AuthForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
-  const [isSignUp, setIsSignUp] = useState(searchParams.get('mode') === 'signup');
+  const router = useRouter();
+  const [mode, setMode] = useState<'signin' | 'signup'>(
+    searchParams.get('mode') === 'signup' ? 'signup' : 'signin'
+  );
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [checkEmail, setCheckEmail] = useState(false);
+
+  const supabase = createClient();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    if (isSignUp) {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: { data: { full_name: name } },
-      });
-      if (error) { setError(error.message); setLoading(false); return; }
-    } else {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) { setError(error.message); setLoading(false); return; }
+    try {
+      if (mode === 'signup') {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: { full_name: name },
+            emailRedirectTo: `${window.location.origin}/auth/callback`,
+          },
+        });
+        if (error) throw error;
+        setCheckEmail(true);
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) throw error;
+        router.push('/dashboard');
+        router.refresh();
+      }
+    } catch (err: any) {
+      setError(err.message || 'Something went wrong');
+    } finally {
+      setLoading(false);
     }
-    router.push('/dashboard');
+  }
+
+  async function handleGoogleLogin() {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+    if (error) setError(error.message);
+  }
+
+  if (checkEmail) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <div className="card p-10 max-w-md w-full text-center">
+          <div className="w-16 h-16 bg-sage-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg className="w-8 h-8 text-sage-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-serif text-earth-800 mb-3">Check your email</h2>
+          <p className="text-earth-500 leading-relaxed">
+            We sent a confirmation link to <strong>{email}</strong>. Click the link to activate your account.
+          </p>
+          <Link href="/" className="btn-ghost text-sm mt-6 inline-block">
+            Back to home
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="card p-8">
-      <h1 className="text-2xl font-serif text-earth-800 text-center mb-2">
-        {isSignUp ? 'Create your account' : 'Welcome back'}
-      </h1>
-      <p className="text-earth-400 text-center mb-8">
-        {isSignUp ? 'Start preserving precious memories' : 'Continue where you left off'}
-      </p>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {isSignUp && (
-          <div>
-            <label className="block text-sm font-medium text-earth-600 mb-1.5">Your Name</label>
-            <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="input" placeholder="Your full name" required />
+    <div className="min-h-screen flex items-center justify-center px-4">
+      <div className="card p-10 max-w-md w-full">
+        <div className="text-center mb-8">
+          <Link href="/" className="font-serif text-2xl text-earth-800 tracking-tight">
+            Gathered<span className="text-amber-500">Light</span>
+          </Link>
+          <p className="text-earth-500 mt-2">
+            {mode === 'signup' ? 'Create your account' : 'Welcome back'}
+          </p>
+        </div>
+
+        <button
+          onClick={handleGoogleLogin}
+          className="w-full flex items-center justify-center gap-3 py-3 px-4 border border-cream-300 rounded-xl text-earth-700 font-medium hover:bg-cream-50 transition-all duration-200 mb-6"
+        >
+          <svg className="w-5 h-5" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+          </svg>
+          Continue with Google
+        </button>
+
+        <div className="relative mb-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-cream-200"></div>
           </div>
-        )}
-        <div>
-          <label className="block text-sm font-medium text-earth-600 mb-1.5">Email</label>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="input" placeholder="you@example.com" required />
+          <div className="relative flex justify-center text-sm">
+            <span className="px-4 bg-white text-warm-text-muted">or</span>
+          </div>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-earth-600 mb-1.5">Password</label>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="input" placeholder="At least 6 characters" minLength={6} required />
-        </div>
-        {error && <p className="text-rose-warm text-sm text-center">{error}</p>}
-        <button type="submit" disabled={loading} className="btn-primary w-full">
-          {loading ? 'Please wait...' : isSignUp ? 'Create Account' : 'Sign In'}
-        </button>
-      </form>
-      <div className="mt-6 text-center">
-        <button onClick={() => setIsSignUp(!isSignUp)} className="text-amber-600 hover:text-amber-700 text-sm font-medium">
-          {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
-        </button>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {mode === 'signup' && (
+            <div>
+              <label className="block text-sm font-medium text-earth-700 mb-1">Your name</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="input"
+                placeholder="How should we remember you?"
+                required
+              />
+            </div>
+          )}
+          <div>
+            <label className="block text-sm font-medium text-earth-700 mb-1">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="input"
+              placeholder="you@example.com"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-earth-700 mb-1">Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="input"
+              placeholder="At least 6 characters"
+              minLength={6}
+              required
+            />
+          </div>
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
+              {error}
+            </div>
+          )}
+
+          <button type="submit" className="btn-primary w-full" disabled={loading}>
+            {loading ? 'Please wait...' : mode === 'signup' ? 'Create Account' : 'Sign In'}
+          </button>
+        </form>
+
+        <p className="text-center text-sm text-earth-500 mt-6">
+          {mode === 'signup' ? (
+            <>
+              Already have an account?{' '}
+              <button onClick={() => setMode('signin')} className="text-amber-600 font-medium hover:underline">
+                Sign in
+              </button>
+            </>
+          ) : (
+            <>
+              New here?{' '}
+              <button onClick={() => setMode('signup')} className="text-amber-600 font-medium hover:underline">
+                Create an account
+              </button>
+            </>
+          )}
+        </p>
       </div>
     </div>
   );
@@ -73,17 +191,8 @@ function AuthForm() {
 
 export default function AuthPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 py-12">
-      <div className="w-full max-w-md">
-        <Link href="/" className="block text-center mb-10">
-          <span className="font-serif text-3xl text-earth-800 tracking-tight">
-            Gathered<span className="text-amber-500">Light</span>
-          </span>
-        </Link>
-        <Suspense fallback={<div className="card p-8 text-center text-earth-400">Loading...</div>}>
-          <AuthForm />
-        </Suspense>
-      </div>
-    </div>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><p className="text-earth-500">Loading...</p></div>}>
+      <AuthForm />
+    </Suspense>
   );
 }
