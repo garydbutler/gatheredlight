@@ -1,0 +1,93 @@
+From: dwight.ai.schrute@gmail.com
+To: garydbutler@gmail.com
+Bcc: garydbutler@gmail.com
+Subject: GatheredLight - Next.js Build Complete
+
+<#part type=text/html>
+<html>
+<body style="font-family: Georgia, serif; background-color: #FAF5ED; margin: 0; padding: 40px 20px;">
+<div style="max-width: 640px; margin: 0 auto; background: #FFFFFF; border-radius: 16px; border: 1px solid #FFF3DC; overflow: hidden;">
+
+<div style="background: linear-gradient(135deg, #FFF8F0, #FFEFD6); padding: 40px; text-align: center; border-bottom: 1px solid #FFDEAD;">
+<h1 style="font-family: Georgia, serif; font-size: 28px; color: #3D2F20; margin: 0;">GatheredLight</h1>
+<p style="color: #6E5740; font-size: 16px; margin: 8px 0 0 0; font-style: italic;">Build Report - February 13, 2026</p>
+</div>
+
+<div style="padding: 32px 40px;">
+
+<h2 style="font-family: Georgia, serif; color: #3D2F20; font-size: 20px; margin: 0 0 16px 0;">Conversion Complete: React Native to Next.js</h2>
+
+<p style="color: #5A4733; line-height: 1.7; margin: 0 0 20px 0;">
+The GatheredLight memorial tribute application has been fully converted from React Native/Expo to a Next.js 14 web application. The build compiles and passes successfully. Here is the summary:
+</p>
+
+<h3 style="font-family: Georgia, serif; color: #3D2F20; font-size: 16px; margin: 24px 0 12px 0;">Tech Stack</h3>
+<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+<tr><td style="padding: 8px 12px; border-bottom: 1px solid #FFF3DC; color: #6E5740;">Framework</td><td style="padding: 8px 12px; border-bottom: 1px solid #FFF3DC; color: #3D2F20; font-weight: bold;">Next.js 14.2 (App Router)</td></tr>
+<tr><td style="padding: 8px 12px; border-bottom: 1px solid #FFF3DC; color: #6E5740;">Language</td><td style="padding: 8px 12px; border-bottom: 1px solid #FFF3DC; color: #3D2F20; font-weight: bold;">TypeScript</td></tr>
+<tr><td style="padding: 8px 12px; border-bottom: 1px solid #FFF3DC; color: #6E5740;">Styling</td><td style="padding: 8px 12px; border-bottom: 1px solid #FFF3DC; color: #3D2F20; font-weight: bold;">Tailwind CSS (custom warm palette)</td></tr>
+<tr><td style="padding: 8px 12px; border-bottom: 1px solid #FFF3DC; color: #6E5740;">Backend</td><td style="padding: 8px 12px; border-bottom: 1px solid #FFF3DC; color: #3D2F20; font-weight: bold;">Supabase (Auth + DB + Storage)</td></tr>
+</table>
+
+<h3 style="font-family: Georgia, serif; color: #3D2F20; font-size: 16px; margin: 24px 0 12px 0;">Routes (12 pages)</h3>
+<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+<tr style="background: #FFF8F0;"><td style="padding: 8px 12px; border-bottom: 1px solid #FFF3DC; color: #6E5740; font-family: monospace; font-size: 13px;">/</td><td style="padding: 8px 12px; border-bottom: 1px solid #FFF3DC; color: #3D2F20;">Landing page</td></tr>
+<tr><td style="padding: 8px 12px; border-bottom: 1px solid #FFF3DC; color: #6E5740; font-family: monospace; font-size: 13px;">/auth</td><td style="padding: 8px 12px; border-bottom: 1px solid #FFF3DC; color: #3D2F20;">Sign in / Sign up</td></tr>
+<tr style="background: #FFF8F0;"><td style="padding: 8px 12px; border-bottom: 1px solid #FFF3DC; color: #6E5740; font-family: monospace; font-size: 13px;">/dashboard</td><td style="padding: 8px 12px; border-bottom: 1px solid #FFF3DC; color: #3D2F20;">My Tributes grid</td></tr>
+<tr><td style="padding: 8px 12px; border-bottom: 1px solid #FFF3DC; color: #6E5740; font-family: monospace; font-size: 13px;">/tributes/create</td><td style="padding: 8px 12px; border-bottom: 1px solid #FFF3DC; color: #3D2F20;">Create new tribute</td></tr>
+<tr style="background: #FFF8F0;"><td style="padding: 8px 12px; border-bottom: 1px solid #FFF3DC; color: #6E5740; font-family: monospace; font-size: 13px;">/tributes/[id]</td><td style="padding: 8px 12px; border-bottom: 1px solid #FFF3DC; color: #3D2F20;">Tribute detail (wall / timeline / stories)</td></tr>
+<tr><td style="padding: 8px 12px; border-bottom: 1px solid #FFF3DC; color: #6E5740; font-family: monospace; font-size: 13px;">/tributes/[id]/memories/add</td><td style="padding: 8px 12px; border-bottom: 1px solid #FFF3DC; color: #3D2F20;">Add a memory</td></tr>
+<tr style="background: #FFF8F0;"><td style="padding: 8px 12px; border-bottom: 1px solid #FFF3DC; color: #6E5740; font-family: monospace; font-size: 13px;">/tributes/[id]/memories/[mid]</td><td style="padding: 8px 12px; border-bottom: 1px solid #FFF3DC; color: #3D2F20;">Memory detail with reactions</td></tr>
+<tr><td style="padding: 8px 12px; border-bottom: 1px solid #FFF3DC; color: #6E5740; font-family: monospace; font-size: 13px;">/tributes/[id]/slideshow</td><td style="padding: 8px 12px; border-bottom: 1px solid #FFF3DC; color: #3D2F20;">Ken Burns photo slideshow</td></tr>
+<tr style="background: #FFF8F0;"><td style="padding: 8px 12px; border-bottom: 1px solid #FFF3DC; color: #6E5740; font-family: monospace; font-size: 13px;">/tributes/[id]/invite</td><td style="padding: 8px 12px; border-bottom: 1px solid #FFF3DC; color: #3D2F20;">Invite contributors</td></tr>
+<tr><td style="padding: 8px 12px; border-bottom: 1px solid #FFF3DC; color: #6E5740; font-family: monospace; font-size: 13px;">/tributes/[id]/settings</td><td style="padding: 8px 12px; border-bottom: 1px solid #FFF3DC; color: #3D2F20;">Tribute settings + delete</td></tr>
+<tr style="background: #FFF8F0;"><td style="padding: 8px 12px; border-bottom: 1px solid #FFF3DC; color: #6E5740; font-family: monospace; font-size: 13px;">/join</td><td style="padding: 8px 12px; border-bottom: 1px solid #FFF3DC; color: #3D2F20;">Join via invite code</td></tr>
+<tr><td style="padding: 8px 12px; border-bottom: 1px solid #FFF3DC; color: #6E5740; font-family: monospace; font-size: 13px;">/profile</td><td style="padding: 8px 12px; border-bottom: 1px solid #FFF3DC; color: #3D2F20;">User profile</td></tr>
+</table>
+
+<h3 style="font-family: Georgia, serif; color: #3D2F20; font-size: 16px; margin: 24px 0 12px 0;">Key Features</h3>
+<ul style="color: #5A4733; line-height: 1.8; padding-left: 20px; margin: 0 0 20px 0;">
+<li>Warm amber/cream/gold/sage palette with Playfair Display serif font</li>
+<li>Masonry memory wall with hover animations</li>
+<li>Chronological timeline view with vertical connector</li>
+<li>Long-form stories view</li>
+<li>Ken Burns effect slideshow with keyboard controls (arrows, space, esc)</li>
+<li>Invite system: shareable links + invite codes</li>
+<li>Privacy controls: public, private, family-only</li>
+<li>Reaction system (heart, candle, flower)</li>
+<li>Photo upload to Supabase Storage</li>
+<li>Full Supabase Auth (sign up, sign in, sign out)</li>
+<li>Row Level Security on all tables</li>
+<li>Responsive design throughout</li>
+</ul>
+
+<h3 style="font-family: Georgia, serif; color: #3D2F20; font-size: 16px; margin: 24px 0 12px 0;">Design Notes</h3>
+<p style="color: #5A4733; line-height: 1.7; margin: 0 0 20px 0;">
+No indigo. No AI slop. The palette is entirely warm tones -- amber (#F5A623), cream (#FFF9ED), gold (#D4A843), sage (#7A9466), and earth (#3D2F20). Typography uses Playfair Display for headings and Inter for body text. The aesthetic is nostalgic and gentle, like opening a treasured photo album.
+</p>
+
+<h3 style="font-family: Georgia, serif; color: #3D2F20; font-size: 16px; margin: 24px 0 12px 0;">Next Steps</h3>
+<ul style="color: #5A4733; line-height: 1.8; padding-left: 20px; margin: 0 0 20px 0;">
+<li>Set up Supabase project and add credentials to .env.local</li>
+<li>Run the SQL migration (supabase/migrations/001_initial_schema.sql)</li>
+<li>Deploy to Vercel (connect the GitHub repo)</li>
+<li>Optional: Add Framer Motion page transitions, voice notes, PDF export</li>
+</ul>
+
+<div style="background: #FFF8F0; border-radius: 8px; padding: 16px; margin-top: 24px;">
+<p style="color: #6E5740; margin: 0; font-size: 14px;">
+<strong style="color: #3D2F20;">GitHub:</strong> <a href="https://github.com/garydbutler/gatheredlight" style="color: #F5A623;">github.com/garydbutler/gatheredlight</a><br>
+<strong style="color: #3D2F20;">Commit:</strong> 37d873f - Convert to Next.js 14 web app with App Router<br>
+<strong style="color: #3D2F20;">Build:</strong> All 12 routes compiled successfully
+</p>
+</div>
+
+</div>
+
+<div style="padding: 20px 40px; border-top: 1px solid #FFF3DC; text-align: center;">
+<p style="color: #A8956F; font-size: 13px; font-style: italic; margin: 0;">Every memory shared is a light that never goes out.</p>
+</div>
+
+</div>
+</body>
+</html>
