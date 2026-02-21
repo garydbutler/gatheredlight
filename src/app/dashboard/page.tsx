@@ -1,10 +1,11 @@
 'use client';
 
 import { useAuth, useTributes } from '@/lib/hooks';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
+import SubscriptionBanner from '@/components/SubscriptionBanner';
 import { format } from 'date-fns';
 import type { Tribute } from '@/lib/types';
 
@@ -54,10 +55,21 @@ export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
   const { tributes, loading } = useTributes(user?.id);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const [sub, setSub] = useState<{ plan: string; status: string; currentPeriodEnd: string | null }>({
+    plan: 'free', status: 'none', currentPeriodEnd: null,
+  });
+  const upgraded = searchParams.get('upgraded') === 'true';
 
   useEffect(() => {
     if (!authLoading && !user) router.push('/auth');
   }, [user, authLoading, router]);
+
+  useEffect(() => {
+    if (user) {
+      fetch('/api/subscription').then(r => r.json()).then(setSub).catch(() => {});
+    }
+  }, [user]);
 
   if (authLoading || loading) {
     return (
@@ -74,6 +86,20 @@ export default function DashboardPage() {
     <div className="min-h-screen">
       <Navbar />
       <div className="max-w-6xl mx-auto px-6 py-10">
+        {upgraded && (
+          <div className="bg-sage-50 border border-sage-200 rounded-xl p-4 mb-6 text-sage-700">
+            Welcome to your upgraded plan! Your new features are now active.
+          </div>
+        )}
+
+        <div className="mb-6">
+          <SubscriptionBanner
+            plan={sub.plan}
+            status={sub.status}
+            currentPeriodEnd={sub.currentPeriodEnd}
+          />
+        </div>
+
         <div className="flex items-center justify-between mb-10">
           <div>
             <h1 className="text-3xl font-serif text-earth-800">My Tributes</h1>
